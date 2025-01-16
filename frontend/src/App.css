@@ -1,0 +1,92 @@
+/* src/App.css */
+
+.App {
+  display: flex;
+  height: 100vh;
+}
+
+.main-layout {
+  display: flex;
+  width: 100%;
+}
+
+/* Side Panel */
+.side-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #e7f0ff, #f0f8ff);
+  padding: 20px;
+  border-right: 2px solid #d3e2f3;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.side-panel h2 {
+  color: #004080;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.form-group input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Buttons */
+.generate-btn,
+.download-btn {
+  margin-top: 1rem;
+  padding: 0.7rem 1.2rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.generate-btn:hover,
+.download-btn:hover {
+  background-color: #0056b3;
+}
+
+.generate-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+hr {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+/* AI Banner Preview */
+.generated-banner {
+  max-width: 100%;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+/* Canvas Area */
+.canvas-area {
+  flex: 3;
+  padding: 20px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+}

@@ -1,0 +1,199 @@
+/* src/components/BannerCanvas.css */
+
+/* Overall Wrapper */
+.banner-canvas-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 10px;
+  }
+  
+  /* Subscription Notice */
+  .subscribe-notice {
+    background-color: #fff8e6;
+    border: 1px solid #ffe080;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .subscribe-notice p {
+    margin: 0;
+  }
+  .subscribe-notice button {
+    margin-top: 5px;
+    background-color: #ffa600;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  
+  /* Top Bar (Undo/Redo, Zoom, Canvas Size) */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  /* History Bar */
+  .history-bar {
+    display: flex;
+    gap: 10px;
+  }
+  .history-bar button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .history-bar button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Zoom Bar */
+  .zoom-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .zoom-bar button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .zoom-bar button:hover {
+    background-color: #0056b3;
+  }
+  .zoom-bar span {
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+  }
+  
+  /* Size Controls */
+  .size-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .size-controls label {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-weight: 600;
+  }
+  .size-controls input {
+    width: 60px;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    text-align: right;
+  }
+  
+  /* Editor Layout: Tools, Canvas, Right Panel */
+  .editor-layout {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Toolbar (Left) */
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #e7f0ff;
+    border: 2px solid #d2e4ff;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  /* Canvas (Center) */
+  .editor-canvas {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #bannerCanvas {
+    border: 2px solid #d2e4ff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fefefe;
+    border-radius: 4px;
+  }
+  
+  /* Right Panel (Layers + Export) */
+  .right-panel {
+    width: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Layers Panel */
+  .layers-panel {
+    background: #f0faff;
+    border: 2px solid #d2e4ff;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  .layers-panel h3 {
+    margin-top: 0;
+    color: #004080;
+  }
+  .layer-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    margin-bottom: 5px;
+    background-color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid #d2e4ff;
+  }
+  .layer-item:hover {
+    background-color: #e6f2ff;
+  }
+  .layer-item.active-layer {
+    background-color: #b3daff;
+  }
+  .layer-controls button {
+    margin-left: 5px;
+    background-color: #0080ff;
+    color: #fff;
+    border: none;
+    font-size: 0.8rem;
+    border-radius: 3px;
+    padding: 3px 6px;
+    cursor: pointer;
+  }
+  .layer-controls button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Export Button */
+  .export-btn {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .export-btn:hover {
+    background-color: #218838;
+  }
+  
