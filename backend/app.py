@@ -44,44 +44,53 @@ def health_check():
     return jsonify({"status": "ok"}), 200
 
 # Generate AI Banner
+# app.py snippet
+
 @app.route('/api/generate-banner', methods=['POST'])
 def generate_banner():
-    """
-    Main endpoint for generating banners using Stable Diffusion (or any AI model).
-    Optionally overlays text, logos, etc.
-    """
-    try:
-        data = request.json or {}
-        prompt = data.get('prompt', 'A stunning eCommerce product banner')
-        overlay_text = data.get('overlay_text', 'Sale!')
-        text_position = tuple(data.get('text_position', (50, 50)))
-        text_color = tuple(data.get('text_color', (255, 0, 0)))
-        logo_path = data.get('logo_path', None)
+    data = request.json or {}
 
-        logger.info(f"Generating banner with prompt: {prompt}")
+    # Step 1: Extract prompt and generation params
+    prompt = data.get("prompt", "A modern eCommerce banner...")
+    steps = data.get("num_inference_steps", 250)
+    scale = data.get("guidance_scale", 7.5)
+    width = data.get("width", 1200)
+    height = data.get("height", 400)
 
-        # 1. Generate base image
-        generated_image = generate_image_from_prompt(prompt)
+    # Step 2: Generate the banner
+    image = generate_image_from_prompt(
+        prompt=prompt,
+        num_inference_steps=steps,
+        guidance_scale=scale,
+        width=width,
+        height=height
+    )
 
-        # 2. Overlay text (optional)
-        banner_image = overlay_text_on_image(
-            generated_image,
+    # Step 3: Overlay text if provided
+    overlay_text = data.get("overlay_text", "")
+    if overlay_text:
+        text_position = tuple(data.get("text_position", [50, 50]))
+        text_color = tuple(data.get("text_color", [255, 255, 255]))
+
+        # New: accept bold and outline from JSON
+        text_bold = data.get("text_bold", False)
+        text_outline_color = tuple(data.get("text_outline_color", [0, 0, 0]))
+        text_outline_width = data.get("text_outline_width", 2)
+
+        image = overlay_text_on_image(
+            image,
             text=overlay_text,
             position=text_position,
-            text_color=text_color
+            font_size=42,
+            text_color=text_color,
+            text_bold=text_bold,
+            text_outline_color=text_outline_color,
+            text_outline_width=text_outline_width
         )
 
-        # 3. Overlay logo if provided and file exists
-        if logo_path and os.path.exists(logo_path):
-            banner_image = overlay_logo_on_image(banner_image, logo_path)
-
-        # 4. Convert image to bytes and return
-        img_bytes = save_image_to_bytes(banner_image)
-        return send_file(img_bytes, mimetype='image/png')
-
-    except Exception as e:
-        logger.error(f"Error generating banner: {e}", exc_info=True)
-        return jsonify({"error": "Failed to generate banner", "details": str(e)}), 500
+    # Step 4: Convert image to bytes and respond
+    img_bytes = save_image_to_bytes(image)
+    return send_file(img_bytes, mimetype="image/png")
 
 # AI Enhancement Endpoint
 @app.route('/api/ai-enhance', methods=['POST'])
