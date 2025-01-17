@@ -3,9 +3,26 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import os
 
-import os
-from PIL import ImageDraw, ImageFont
-
+def draw_shape_on_image(
+    image,
+    shape_type="rectangle",
+    position=(300, 100),
+    size=(200, 100),
+    color=(0, 255, 0)
+):
+    """
+    Draws a shape (rectangle or circle) onto the image for highlighting areas.
+    """
+    draw = ImageDraw.Draw(image)
+    if shape_type == "rectangle":
+        x, y = position
+        w, h = size
+        draw.rectangle([x, y, x + w, y + h], outline=color, width=3)
+    elif shape_type == "circle":
+        x, y = position
+        r = size[0]  # Assuming [radius, *ignored*]
+        draw.ellipse([x - r, y - r, x + r, y + r], outline=color, width=3)
+    return image
 def get_font_path(default_font="arial.ttf"):
     """
     Resolve the font file path dynamically.

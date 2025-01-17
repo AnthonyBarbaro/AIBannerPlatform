@@ -5,59 +5,76 @@ from flask_cors import CORS
 from PIL import Image
 import base64
 from io import BytesIO
+from werkzeug.utils import secure_filename
 
 # Import from local modules
 from banner_generator.generate import generate_image_from_prompt
-from banner_generator.overlay import overlay_text_on_image, overlay_logo_on_image, save_image_to_bytes
+from banner_generator.overlay import (
+    overlay_text_on_image,
+    overlay_logo_on_image,
+    save_image_to_bytes,
+    draw_shape_on_image
+)
 
-# Initialize Flask app
+UPLOAD_FOLDER = "uploads"
 app = Flask(__name__)
-CORS(app)  # Allows cross-origin requests from React dev server on localhost:3000
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Configure logging
+CORS(app)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Route: Favicon
 @app.route('/favicon.ico')
 def favicon():
-    """
-    Returns a favicon if requested by the browser.
-    """
     return send_from_directory(
-        'static', 
-        'favicon.ico', 
+        'static',
+        'favicon.ico',
         mimetype='image/vnd.microsoft.icon'
     )
 
-# Route: Home (simple JSON response)
 @app.route('/')
 def home():
     return jsonify({"message": "Welcome to the AI Banner Generator!"})
 
-# Health Check
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    """
-    Quick health check endpoint to see if the server is running.
-    """
     return jsonify({"status": "ok"}), 200
 
-# Generate AI Banner
-# app.py snippet
+#############################
+# Upload Logo Endpoint
+#############################
+@app.route('/api/upload-logo', methods=['POST'])
+def upload_logo():
+    """Endpoint to handle logo file uploads."""
+    if 'logo' not in request.files:
+        return jsonify({"error": "No logo file provided"}), 400
 
+    file = request.files['logo']
+    if file.filename == '':
+        return jsonify({"error": "Empty filename"}), 400
+
+    filename = secure_filename(file.filename)
+    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    file.save(upload_path)
+
+    return jsonify({"logo_path": upload_path})
+
+#############################
+# Generate Banner Endpoint
+#############################
 @app.route('/api/generate-banner', methods=['POST'])
 def generate_banner():
     data = request.json or {}
 
-    # Step 1: Extract prompt and generation params
+    # 1) Parse AI generation parameters
     prompt = data.get("prompt", "A modern eCommerce banner...")
-    steps = data.get("num_inference_steps", 250)
+    steps = data.get("num_inference_steps", 100)
     scale = data.get("guidance_scale", 7.5)
     width = data.get("width", 1200)
     height = data.get("height", 400)
 
-    # Step 2: Generate the banner
+    # 2) Generate base image
     image = generate_image_from_prompt(
         prompt=prompt,
         num_inference_steps=steps,
@@ -66,13 +83,19 @@ def generate_banner():
         height=height
     )
 
-    # Step 3: Overlay text if provided
+    # 3) Optional shape overlay
+    if data.get("draw_shape", False):
+        shape_type = data.get("shape_type", "rectangle")
+        shape_color = tuple(data.get("shape_color", [0, 255, 0]))
+        shape_position = tuple(data.get("shape_position", [300, 100]))
+        shape_size = tuple(data.get("shape_size", [200, 100]))
+        image = draw_shape_on_image(image, shape_type, shape_position, shape_size, shape_color)
+
+    # 4) Overlay text if provided
     overlay_text = data.get("overlay_text", "")
     if overlay_text:
         text_position = tuple(data.get("text_position", [50, 50]))
         text_color = tuple(data.get("text_color", [255, 255, 255]))
-
-        # New: accept bold and outline from JSON
         text_bold = data.get("text_bold", False)
         text_outline_color = tuple(data.get("text_outline_color", [0, 0, 0]))
         text_outline_width = data.get("text_outline_width", 2)
@@ -88,16 +111,25 @@ def generate_banner():
             text_outline_width=text_outline_width
         )
 
-    # Step 4: Convert image to bytes and respond
+    # 5) Overlay logo if provided
+    logo_path = data.get("logo_path")
+    if logo_path and os.path.exists(logo_path):
+        logo_position = tuple(data.get("logo_position", [10, 10]))
+        logo_resize = data.get("logo_resize")  # e.g. [150, 50]
+        image = overlay_logo_on_image(image, logo_path, position=logo_position, resize_to=logo_resize)
+
+    # 6) Convert to bytes and return
     img_bytes = save_image_to_bytes(image)
     return send_file(img_bytes, mimetype="image/png")
 
+#############################
 # AI Enhancement Endpoint
+#############################
 @app.route('/api/ai-enhance', methods=['POST'])
 def ai_enhance():
     """
-    Endpoint for 'enhancing' an uploaded image using AI (Stable Diffusion stub).
-    Expects base64 image data in request JSON: { "image": "data:image/png;base64,..." }
+    Endpoint for 'enhancing' an uploaded image using AI (stub).
+    Expects base64: { "image": "data:image/png;base64,..." }
     """
     try:
         data = request.json or {}
@@ -105,19 +137,16 @@ def ai_enhance():
         if not image_data:
             return jsonify({"error": "No image data provided"}), 400
 
-        # Decode the base64 string (strip the prefix 'data:image/...;base64,')
         base64_string = image_data.split(",")[1]
         decoded_image = base64.b64decode(base64_string)
         pil_image = Image.open(BytesIO(decoded_image))
 
-        # Example AI enhancement (stub): Generate image from prompt & pass the existing image
-        # You could do inpainting or similar if your pipeline supports it.
+        # Stub: do something advanced like inpainting
         enhanced_image = generate_image_from_prompt(
             prompt="Enhance this image",
-            input_image=pil_image  # Add logic in generate_image_from_prompt to accept this param
+            # If your pipeline supported an input image for inpainting, you'd pass it here
         )
 
-        # Convert to bytes and send back
         img_bytes = save_image_to_bytes(enhanced_image)
         return send_file(img_bytes, mimetype='image/png')
 
@@ -125,9 +154,7 @@ def ai_enhance():
         logger.error(f"AI enhance error: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-# Run the server
 if __name__ == "__main__":
-    # Use port=5000 by default, or read from PORT env var for cloud hosting
     port = int(os.environ.get("PORT", 5000))
     logger.info(f"Starting Flask server on port {port}...")
     app.run(host='0.0.0.0', port=port, debug=True)

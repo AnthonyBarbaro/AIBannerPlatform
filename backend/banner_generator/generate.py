@@ -1,3 +1,4 @@
+# banner_generator/generate.py
 import torch
 from diffusers import StableDiffusionPipeline
 from .config import MODEL_NAME
@@ -22,7 +23,6 @@ try:
     pipe.to(device)
 
     # (Optional) Enable xFormers memory-efficient attention if installed
-    # pip install xformers
     # if hasattr(pipe, "enable_xformers_memory_efficient_attention"):
     #     pipe.enable_xformers_memory_efficient_attention()
 
@@ -30,7 +30,6 @@ try:
 
 except Exception as e:
     raise RuntimeError(f"Failed to load Stable Diffusion pipeline: {e}")
-
 
 def generate_image_from_prompt(
     prompt: str,
@@ -41,25 +40,7 @@ def generate_image_from_prompt(
 ):
     """
     Generate a banner-like image from a text prompt using Stable Diffusion.
-
-    Args:
-        prompt (str):
-            The text prompt to generate the image.
-        num_inference_steps (int, optional):
-            The number of denoising steps (higher = better quality, but slower).
-            Defaults to 50 for improved commercial quality.
-        guidance_scale (float, optional):
-            CFG scale for prompt alignment (7.5–12 is common). Defaults to 7.5.
-        width (int, optional):
-            The desired image width. Defaults to 1200 for a typical banner shape.
-        height (int, optional):
-            The desired image height. Defaults to 400, ideal for banners.
-
-    Returns:
-        PIL.Image.Image:
-            The generated image, sized for a 1200×400 banner by default.
     """
-    # Validate input
     if not prompt or not isinstance(prompt, str):
         raise ValueError("Prompt must be a non-empty string.")
 
@@ -72,7 +53,6 @@ def generate_image_from_prompt(
     )
 
     try:
-        # Use autocast for half-precision on CUDA for speed
         with torch.autocast(device, enabled=(device == "cuda")):
             result = pipe(
                 prompt=prompt,
